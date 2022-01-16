@@ -7,6 +7,7 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page import="java.text.NumberFormat"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%!
     /*
@@ -20,7 +21,7 @@
      * Check a string value to see if it is empty and build up an error list
      */
     private String checkRequiredField(String value, String fieldName) {
-        if (value.equals("")) {
+        if (StringUtils.isEmpty(value) ) {
             errors.add(fieldName + " is required");
         }
 
@@ -32,12 +33,10 @@
      */
     private double getDoubleValue(String value, String fieldName) {
         try {
-            if (!isNumeric(value)) {
-                errors.add(fieldName + " is an invalid numeric value");
-            }
-            return Double.parseDouble(value);
+        	return Double.parseDouble(value);            
         } catch (Exception e) {
-            return 0.0;
+        	 errors.add(fieldName + " is an invalid numeric value");
+        	 return 0.0;
         }
     }
 
@@ -94,7 +93,7 @@
      */
 
     alert = "";
-    errors = new ArrayList();
+    errors = new ArrayList<String>();
 
     //Submit clicks 
     boolean ex1 = false;
@@ -133,13 +132,23 @@
     try {
         //Credit Card
         if (request.getParameter("calccreditcard") != null) {
-            oldBalanceParam = checkRequiredField(request.getParameter("txtOldBalance"), "Old balance");
-            newChargesParam = checkRequiredField(request.getParameter("txtCharges"), "New charges");
-            creditsParam = checkRequiredField(request.getParameter("txtCredits"), "Credits");
+        	String oldBalanceRequest = request.getParameter("txtOldBalance");
+        	String newChargesRequest = request.getParameter("txtCharges");
+        	String newCreditsRequest = request.getParameter("txtCredits");
+            oldBalanceParam = checkRequiredField(oldBalanceRequest, "Old balance");
+            newChargesParam = checkRequiredField(newChargesRequest, "New charges");
+            creditsParam = checkRequiredField(newCreditsRequest, "Credits");
 
-            oldBalance = !oldBalanceParam.equals("") ? getDoubleValue(oldBalanceParam, "Old balance") : 0;
-            newCharges = !newChargesParam.equals("") ? getDoubleValue(newChargesParam, "New charges") : 0;
-            credits = !creditsParam.equals("") ? getDoubleValue(creditsParam, "Credits") : 0;
+            if (!checkRequiredField(oldBalanceRequest, "Old balance").equals("") ) {
+            	oldBalance = getDoubleValue(oldBalanceRequest, "Old balance") ;
+            }
+            if (!checkRequiredField(newChargesRequest, "New charges").equals("") ) {
+            	newCharges = getDoubleValue(newChargesRequest, "New charges") ;
+            }
+            if (!checkRequiredField(newCreditsRequest, "Credits").equals("") ) {
+            	credits =  getDoubleValue(newCreditsRequest, "Credits");
+            }
+           
             
             //All data validated
             errorCheck();//exception thrown
@@ -217,186 +226,184 @@
 %>
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Post Exercises</title>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" type="text/javascript"></script>
-        <style>
-            body {
-                margin: 0;
-                padding: 0;
-                text-align: center;
-                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-                color: gray !important;
-            }
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>JSP Post Exercises</title>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+	type="text/javascript"></script>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+		'Lucida Sans', Arial, sans-serif;
+	color: gray !important;
+}
 
-            h1{
-                font-size:16px;
-            }
+h1 {
+	font-size: 16px;
+}
 
-            .centered {
-                margin: 0 auto;
-                text-align: center;
-                width: 800px;
-            }
+.centered {
+	margin: 0 auto;
+	text-align: center;
+	width: 800px;
+}
 
-            .left-align {
-                padding: 10px;
-                margin: 10px;
-                text-align: center;
-                border: 1px solid #c4c4c4 !important;
-                width: 550px;
-            }
+.left-align {
+	padding: 10px;
+	margin: 10px;
+	text-align: center;
+	border: 1px solid #c4c4c4 !important;
+	width: 550px;
+}
 
-            .inner-centered {
-                margin: 0 auto;
-                padding: 0px 50px 0px 50px;
-                text-align: center;
-                width: 700px;
-            }
+.inner-centered {
+	margin: 0 auto;
+	padding: 0px 50px 0px 50px;
+	text-align: center;
+	width: 700px;
+}
 
-            .form {
-                text-align: left;
-                width: 600px;
-            }
+.form {
+	text-align: left;
+	width: 600px;
+}
 
-            .centered-content {
-                text-align: center;
-            }
+.centered-content {
+	text-align: center;
+}
 
-            .width-100 {
-                width: 100px;
-            }
+.width-100 {
+	width: 100px;
+}
 
-            .width-300 {
-                width: 300px;
-            }
+.width-300 {
+	width: 300px;
+}
 
-            .width-100, .width-300{
-                font-size:14px;
-            }
-
-        </style>
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" type="text/css" rel="stylesheet" />       
-        <%= alert %>       
-    </head>
-    <body>
-        <div class="centered">
-            <div class="left-align">
-                <h1 class="centered-content">Credit Card Payment Calculator</h1>
-                <%--Implementation here--%>
-                <div class="inner-centered">
-                    <div class="form">
-                        <form name="form1" method="post" autocomplete="off">
-                            <table>
-                                <tr>
-                                    <td class="width-100">Old Balance:</td>
-                                    <td class="width-300">
-                                        <input name="txtOldBalance" 
-                                               class="width-300" value='<%= isNumeric(oldBalanceParam) 
-                                                       && !ex1 ? oldBalanceParam : ""%>'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="width-100">Charges:</td>
-                                    <td class="width-300">
-                                        <input name="txtCharges" class="width-300" value='<%= 
+.width-100, .width-300 {
+	font-size: 14px;
+}
+</style>
+<link
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+	type="text/css" rel="stylesheet" />
+<%= alert %>
+</head>
+<body>
+	<div class="centered">
+		<div class="left-align">
+			<h1 class="centered-content">Credit Card Payment Calculator</h1>
+			<%--Implementation here--%>
+			<div class="inner-centered">
+				<div class="form">
+					<form name="form1" method="post" autocomplete="off">
+						<table>
+							<tr>
+								<td class="width-100">Old Balance:</td>
+								<td class="width-300"><input type="text"
+									name="txtOldBalance" class="width-300"
+									value='<%= isNumeric(oldBalanceParam) 
+                                                       && !ex1 ? oldBalanceParam : ""%>' />
+								</td>
+							</tr>
+							<tr>
+								<td class="width-100">Charges:</td>
+								<td class="width-300"><input type="text" name="txtCharges"
+									class="width-300"
+									value='<%= 
                                             isNumeric(newChargesParam) && 
-                                                                   !ex1 ? newChargesParam : ""%>'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="width-100">Credits:</td>
-                                    <td class="width-300">
-                                        <input name="txtCredits" class="width-300" value='<%= 
+                                                                   !ex1 ? newChargesParam : ""%>' />
+								</td>
+							</tr>
+							<tr>
+								<td class="width-100">Credits:</td>
+								<td class="width-300"><input type="text" name="txtCredits"
+									class="width-300"
+									value='<%= 
                                             isNumeric(creditsParam) && 
-                                                                               !ex1 ? creditsParam : ""%>'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>
-                                        <%= financeChargeMsg%><br />
-                                        <%= newBalanceMsg%><br />
-                                        <%= minPaymentMsg%><br />
-                                        <input type="submit" name="calccreditcard" value="Calculate" 
-                                               class="btn btn-primary"/>                                
-                                    </td>
-                                </tr>
-                            </table>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                                                                               !ex1 ? creditsParam : ""%>' />
+								</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td><%= financeChargeMsg%><br /> <%= newBalanceMsg%><br />
+									<%= minPaymentMsg%><br /> <input type="submit"
+									name="calccreditcard" value="Calculate" class="btn btn-primary" />
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
 
-            <div class="left-align">
-                <h1 class="centered-content">Next Year Salary Predictor</h1>
-                <%--Implementation here--%>
-                <div class="inner-centered">
-                    <div class="form">
-                        <form name="form2" method="post" autocomplete="off">
-                            <table>
-                                <tr>
-                                    <td class="width-100">First Name:</td>
-                                    <td class="width-300">
-                                        <input name="txtFirstName" class="width-300" value='<%= !ex2 ? firstNameParam : ""%>'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="width-100">Last Name:</td>
-                                    <td class="width-300">
-                                        <input name="txtLastName" class="width-300" value='<%= !ex2 ? lastNameParam : ""%>'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="width-100">Current Salary:</td>
-                                    <td class="width-300">
-                                        <input name="txtSalary" class="width-300" value='<%= isNumeric(currentSalaryParam) && !ex2 ? currentSalaryParam : ""%>'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <%= salaryMsg%>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td class="width-300">
-                                        <input type="submit" name="calcsalary" value="Calculate" 
-                                               class="btn btn-primary"/>     
-                                    </td>
-                                </tr>
-                            </table>
-                        </form>
-                    </div>
-                </div>
-            </div>
+		<div class="left-align">
+			<h1 class="centered-content">Next Year Salary Predictor</h1>
+			<%--Implementation here--%>
+			<div class="inner-centered">
+				<div class="form">
+					<form name="form2" method="post" autocomplete="off">
+						<table>
+							<tr>
+								<td class="width-100">First Name:</td>
+								<td class="width-300"><input name="txtFirstName"
+									class="width-300" value='<%= !ex2 ? firstNameParam : ""%>' /></td>
+							</tr>
+							<tr>
+								<td class="width-100">Last Name:</td>
+								<td class="width-300"><input name="txtLastName"
+									class="width-300" value='<%= !ex2 ? lastNameParam : ""%>' /></td>
+							</tr>
+							<tr>
+								<td class="width-100">Current Salary:</td>
+								<td class="width-300"><input name="txtSalary"
+									class="width-300"
+									value='<%= isNumeric(currentSalaryParam) && !ex2 ? currentSalaryParam : ""%>' />
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2"><%= salaryMsg%></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td class="width-300"><input type="submit"
+									name="calcsalary" value="Calculate" class="btn btn-primary" />
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
 
-            <div class="left-align">
-                <h1 class="centered-content">Bonus Calculator</h1>
-                <%--Implementation here--%>
-                <div class="inner-centered">
-                    <div class="form">
-                        <form name="form3" method="post" autocomplete="off">
-                            <table>
-                                <tr>
-                                    <td class="width-100">Sales Amount:</td>
-                                    <td class="width-300">
-                                        <input name="txtSalesAmt" class="width-300" value='<%= isNumeric(salesAmountParam) & ex3 ? salesAmountParam : ""%>' />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="width-100">
-                                        <input type="submit" name="calcbonus" value="Calculate" 
-                                               class="btn btn-primary"/>  
-                                    </td>
-                                </tr>
-                            </table>
-                            <%= salesMsg%>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
+		<div class="left-align">
+			<h1 class="centered-content">Bonus Calculator</h1>
+			<%--Implementation here--%>
+			<div class="inner-centered">
+				<div class="form">
+					<form name="form3" method="post" autocomplete="off">
+						<table>
+							<tr>
+								<td class="width-100">Sales Amount:</td>
+								<td class="width-300"><input name="txtSalesAmt"
+									class="width-300"
+									value='<%= isNumeric(salesAmountParam) & ex3 ? salesAmountParam : ""%>' />
+								</td>
+							</tr>
+							<tr>
+								<td class="width-100"><input type="submit" name="calcbonus"
+									value="Calculate" class="btn btn-primary" /></td>
+							</tr>
+						</table>
+						<%= salesMsg%>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
 </html>
